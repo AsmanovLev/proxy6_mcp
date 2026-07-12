@@ -44,9 +44,30 @@ def _fmt_proxy(p: dict) -> str:
 
 @mcp.tool(description="Show account info: balance, email, user ID.")
 async def get_account() -> str:
-    """Get the current account details."""
+    """Get the current account details (balance, referral balance, email)."""
     data = _api("")
     return json.dumps(data, ensure_ascii=False, indent=2)
+
+
+@mcp.tool(description="Show referral balance and partnership stats.")
+async def get_referral_info() -> str:
+    """Get referral/partnership balance from the account.
+    
+    Note: referral payout and link management are only available via the website
+    (https://px6.net/partnership). The API only exposes the balance_ref field.
+    """
+    data = _api("")
+    cur = data.get("currency", "RUB")
+    return (
+        f"Referral balance: {data.get('balance_ref', '?')} {cur}\n"
+        f"Main balance: {data['balance']} {cur}\n"
+        f"\n📌 Partnership terms (from px6.net):\n"
+        f"  • 30% commission on first payment, 20% on subsequent\n"
+        f"  • Referral user is assigned for life\n"
+        f"  • Bonus can be used for services or withdrawn\n"
+        f"  • Withdrawal: USDT (ERC20/BEP20), WebMoney WMZ\n"
+        f"\n🔗 Manage: https://px6.net/partnership"
+    )
 
 
 @mcp.tool(description="List all owned proxies with full details.")
